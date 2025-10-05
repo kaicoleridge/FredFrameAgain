@@ -36,30 +36,43 @@ export default function UploadImage() {
                 let processedImage = await Jimp.read(buffer);
                 switch (selectedFilter) {
                     case 'actual-life':
+                        processedImage = processedImage
+                                        .normalize()
+                                        .contrast(-0.1)
+                                        .brightness(-0.05);
                         processedImage = processedImage.color([
                             { apply: 'red', params: [140] },
-                            { apply: 'green', params: [0] },
-                            { apply: 'blue', params: [0] },
-                            { apply: 'lighten', params: [-4] },
+                            { apply: 'green', params: [-35] },
+                            { apply: 'blue', params: [-35] },
+                            { apply: 'lighten', params: [-10] },
                         ])
                         break;
 
                     case 'actual-life-2':
+                        processedImage = processedImage
+                                        .normalize()
+                                        .contrast(-0.1)
+                                        .brightness(-0.05);                        
                         processedImage = processedImage.color([
-                            { apply: 'red', params: [600] },
+                            { apply: 'red', params: [500] },
                             { apply: 'green', params: [85] },
                             { apply: 'blue', params: [0] },
-                            { apply: 'lighten', params: [-4] },
+                            { apply: 'lighten', params: [-10] },
                         ])
                         break;
 
                     case 'actual-life-3':
-                        processedImage = processedImage.color([
-                            { apply: 'red', params: [0] },
-                            { apply: 'green', params: [0] },
-                            { apply: 'blue', params: [400] },
-                            { apply: 'lighten', params: [-10] },
-                        ])
+                        processedImage = processedImage
+                                        .normalize()
+                                        .contrast(-0.1)
+                                        .brightness(-0.05);
+                        processedImage = processedImage
+                            .color([
+                            { apply: 'red', params: [-50] },
+                            { apply: 'green', params: [10] },
+                            { apply: 'blue', params: [200] },
+                            { apply: 'lighten', params: [-8] },
+                            ])
                         break;
 
                     default:
@@ -101,9 +114,9 @@ export default function UploadImage() {
                 }
 
                 try {
-                    const buffer = await processedImage.getBufferAsync(Jimp.MIME_PNG);
-                    const modifiedFile = new File([buffer], 'fredagain.png', { type: 'image/png' });
-
+                    const dataUrl = await processedImage.getBase64Async(Jimp.MIME_PNG);
+                    const blob    = await (await fetch(dataUrl)).blob();
+                    const modifiedFile = new File([blob], 'fredagain.png', { type: 'image/png' });
                     const res = await edgestore.publicFiles.upload({
                         file: modifiedFile,
                         options: {
